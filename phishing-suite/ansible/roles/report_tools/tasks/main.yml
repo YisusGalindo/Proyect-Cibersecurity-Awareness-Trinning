@@ -1,0 +1,6 @@
+---
+- name: Crear carpeta de reportes
+  ansible.builtin.file:
+    path: "{{ report_out_dir }}"
+    state: directory
+    mode: '0755'

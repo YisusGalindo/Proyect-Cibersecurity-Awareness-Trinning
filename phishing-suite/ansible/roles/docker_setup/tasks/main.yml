@@ -1,0 +1,13 @@
+---
+- name: Asegurar docker instalado
+  ansible.builtin.package:
+    name:
+      - docker
+      - docker-compose-plugin
+    state: present
+
+- name: Asegurar servicio docker activo
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true

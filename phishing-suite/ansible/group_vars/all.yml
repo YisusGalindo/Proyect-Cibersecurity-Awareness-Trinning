@@ -1,0 +1,20 @@
+project_root: "{{ playbook_dir | dirname | dirname }}"
+stack_name: phishing_suite
+compose_file: "{{ project_root }}/ansible/roles/gophish_stack/files/docker-compose.yml"
+
+regions: ["MX", "US"]
+
+campaign_defaults:
+  name_prefix: "Campaña Ética"
+  smtp_name: "SMTP Corporativo"
+  landing_page_name: "Portal Actualización"
+  email_template_name: "Aviso de Actualización de Contraseña"
+  url: "{{ lookup('env','TRACKING_URL') | default('http://localhost', true) }}"
+  launch_date: "now"
+
+employees_csv: "{{ project_root }}/data/employees.csv"
+email_template_file: "{{ project_root }}/ansible/roles/seed_gophish/files/email_template.html"
+landing_page_file: "{{ project_root }}/ansible/roles/seed_gophish/files/landing_page.html"
+report_out_dir: "{{ project_root }}/reports"
+
+smtp_env: "{{ project_root }}/data/smtp.env"
