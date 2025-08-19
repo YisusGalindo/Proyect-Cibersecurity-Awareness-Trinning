@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Phishing Suite - Infinity Air Springs{% endblock %}</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>🎣 Phishing Suite</h1>
+    <nav>
+      <a href="/">🏠 Inicio</a>
+      <a href="/dashboard">📊 Dashboard</a>
+      <a href="/history">📋 Historial</a>
+      <a href="/logout">🚪 Salir</a>
+    </nav>
+  </header>
+  <main>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flash">
+          {% for m in messages %}
+            <li>{{ m }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  
+  <script>
+    // Auto-refresh para estadísticas en tiempo real
+    function refreshStats() {
+      const campaignId = document.querySelector('[data-campaign-id]')?.dataset.campaignId;
+      if (campaignId && campaignId !== 'None') {
+        fetch(`/api/campaign-stats/${campaignId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data && !data.error) {
+              updateStatsDisplay(data);
+            }
+          })
+          .catch(console.error);
+      }
+    }
+    
+    function updateStatsDisplay(stats) {
+      // Actualizar números en las tarjetas
+      const elements = {
+        'sent': stats.sent,
+        'opened': stats.opened,
+        'clicked': stats.clicked,
+        'submitted': stats.submitted,
+        'reported': stats.reported
+      };
+      
+      Object.entries(elements).forEach(([key, value]) => {
+        const element = document.querySelector(`[data-stat="${key}"]`);
+        if (element) {
+          element.textContent = value;
+        }
+      });
+      
+      // Actualizar gráfica si existe
+      if (window.campaignChart && stats.total > 0) {
+        window.campaignChart.data.datasets[0].data = [
+          stats.sent,
+          stats.opened,
+          stats.clicked,
+          stats.submitted,
+          stats.reported
+        ];
+        window.campaignChart.update();
+      }
+    }
+    
+    // Refresh cada 30 segundos
+    setInterval(refreshStats, 30000);
+  </script>
+</body>
+</html>

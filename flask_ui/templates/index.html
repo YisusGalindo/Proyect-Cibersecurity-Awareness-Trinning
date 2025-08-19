@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="card">
+    <h2>🎯 Panel de Control</h2>
+    <div class="campaign-info">
+      <div>
+        <h3>Campaña Actual</h3>
+        <p><strong>ID:</strong> <span data-campaign-id="{{ last_campaign_id }}">{{ last_campaign_id or 'N/A' }}</span></p>
+        {% if stats %}
+          <p><strong>Estado:</strong> <span class="success">Activa</span></p>
+          <p><strong>Objetivos:</strong> {{ stats.total }}</p>
+        {% else %}
+          <p><strong>Estado:</strong> <span class="danger">Inactiva</span></p>
+        {% endif %}
+      </div>
+      <div>
+        <h3>Acciones Rápidas</h3>
+        <form action="/start" method="post" style="display: inline;">
+          <button type="submit" class="success">🚀 Iniciar Campaña</button>
+        </form>
+        <form action="/stop" method="post" style="display: inline;">
+          <button type="submit" class="danger">⏹️ Detener Campaña</button>
+        </form>
+        <form action="/report" method="post" style="display: inline;">
+          <button type="submit">📄 Generar Reporte PDF</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% if stats %}
+  <div class="card">
+    <h3>📊 Estadísticas en Tiempo Real</h3>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number sent" data-stat="sent">{{ stats.sent }}</div>
+        <div class="stat-label">Enviados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number opened" data-stat="opened">{{ stats.opened }}</div>
+        <div class="stat-label">Abiertos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number clicked" data-stat="clicked">{{ stats.clicked }}</div>
+        <div class="stat-label">Clics</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number submitted" data-stat="submitted">{{ stats.submitted }}</div>
+        <div class="stat-label">Credenciales</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number reported" data-stat="reported">{{ stats.reported }}</div>
+        <div class="stat-label">Reportados</div>
+      </div>
+    </div>
+    
+    <div class="chart-container">
+      <canvas id="statsChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('statsChart').getContext('2d');
+    window.campaignChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Enviados', 'Abiertos', 'Clics', 'Credenciales', 'Reportados'],
+        datasets: [{
+          data: [{{ stats.sent }}, {{ stats.opened }}, {{ stats.clicked }}, {{ stats.submitted }}, {{ stats.reported }}],
+          backgroundColor: [
+            '#3b82f6',
+            '#10b981',
+            '#f59e0b',
+            '#ef4444',
+            '#8b5cf6'
+          ],
+          borderWidth: 2,
+          borderColor: 'rgba(255, 255, 255, 0.1)'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#e6edf3',
+              padding: 20
+            }
+          }
+        }
+      }
+    });
+  </script>
+  {% endif %}
+{% endblock %}

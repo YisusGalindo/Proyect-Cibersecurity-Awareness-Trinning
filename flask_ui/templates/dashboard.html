@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - Phishing Suite{% endblock %}
+{% block content %}
+  <div class="card">
+    <h2>📊 Dashboard Detallado</h2>
+    {% if campaign_id %}
+      <p><strong>Campaña ID:</strong> <span data-campaign-id="{{ campaign_id }}">{{ campaign_id }}</span></p>
+    {% endif %}
+  </div>
+
+  {% if stats %}
+  <div class="card">
+    <h3>Resumen General</h3>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.total }}</div>
+        <div class="stat-label">Total Objetivos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number sent" data-stat="sent">{{ stats.sent }}</div>
+        <div class="stat-label">Enviados</div>
+        <div class="progress-bar">
+          <div class="progress-fill sent" style="width: {{ (stats.sent / stats.total * 100) if stats.total > 0 else 0 }}%; background: #3b82f6;"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number opened" data-stat="opened">{{ stats.opened }}</div>
+        <div class="stat-label">Abiertos</div>
+        <div class="progress-bar">
+          <div class="progress-fill opened" style="width: {{ (stats.opened / stats.total * 100) if stats.total > 0 else 0 }}%; background: #10b981;"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number clicked" data-stat="clicked">{{ stats.clicked }}</div>
+        <div class="stat-label">Clics</div>
+        <div class="progress-bar">
+          <div class="progress-fill clicked" style="width: {{ (stats.clicked / stats.total * 100) if stats.total > 0 else 0 }}%; background: #f59e0b;"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number submitted" data-stat="submitted">{{ stats.submitted }}</div>
+        <div class="stat-label">Credenciales</div>
+        <div class="progress-bar">
+          <div class="progress-fill submitted" style="width: {{ (stats.submitted / stats.total * 100) if stats.total > 0 else 0 }}%; background: #ef4444;"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number reported" data-stat="reported">{{ stats.reported }}</div>
+        <div class="stat-label">Reportados</div>
+        <div class="progress-bar">
+          <div class="progress-fill reported" style="width: {{ (stats.reported / stats.total * 100) if stats.total > 0 else 0 }}%; background: #8b5cf6;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="campaign-info">
+    <div class="card">
+      <h3>📈 Gráfica de Resultados</h3>
+      <div class="chart-container">
+        <canvas id="resultsChart"></canvas>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h3>🎯 Tasa de Éxito</h3>
+      <div class="chart-container">
+        <canvas id="successChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📋 Detalles por Usuario</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Estado</th>
+          <th>Tiempo</th>
+          <th>Departamento</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for detail in stats.details %}
+        <tr>
+          <td>{{ detail.email }}</td>
+          <td>
+            <span class="{% if 'Submitted' in detail.status %}submitted{% elif 'Clicked' in detail.status %}clicked{% elif 'Opened' in detail.status %}opened{% elif 'Sent' in detail.status %}sent{% endif %}">
+              {{ detail.status }}
+            </span>
+          </td>
+          <td>{{ detail.time }}</td>
+          <td>
+            {% if 'fernando.herrera' in detail.email or 'ricardo.carmona' in detail.email or 'jesus.galindo' in detail.email or 'luis.garcia' in detail.email %}
+              TI
+            {% elif 'ana.perez' in detail.email %}
+              Finanzas
+            {% elif 'john.smith' in detail.email %}
+              HR
+            {% elif 'mary.johnson' in detail.email %}
+              Operaciones
+            {% else %}
+              N/A
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Gráfica de barras para resultados
+    const resultsCtx = document.getElementById('resultsChart').getContext('2d');
+    new Chart(resultsCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Enviados', 'Abiertos', 'Clics', 'Credenciales', 'Reportados'],
+        datasets: [{
+          label: 'Cantidad',
+          data: [{{ stats.sent }}, {{ stats.opened }}, {{ stats.clicked }}, {{ stats.submitted }}, {{ stats.reported }}],
+          backgroundColor: [
+            'rgba(59, 130, 246, 0.8)',
+            'rgba(16, 185, 129, 0.8)',
+            'rgba(245, 158, 11, 0.8)',
+            'rgba(239, 68, 68, 0.8)',
+            'rgba(139, 92, 246, 0.8)'
+          ],
+          borderColor: [
+            '#3b82f6',
+            '#10b981',
+            '#f59e0b',
+            '#ef4444',
+            '#8b5cf6'
+          ],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              color: '#e6edf3'
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            }
+          },
+          x: {
+            ticks: {
+              color: '#e6edf3'
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            }
+          }
+        }
+      }
+    });
+
+    // Gráfica de éxito/fallo
+    const successCtx = document.getElementById('successChart').getContext('2d');
+    const successful = {{ stats.clicked + stats.submitted }};
+    const failed = {{ stats.total - (stats.clicked + stats.submitted) }};
+    
+    new Chart(successCtx, {
+      type: 'pie',
+      data: {
+        labels: ['Exitosos (Clic/Credenciales)', 'No Exitosos'],
+        datasets: [{
+          data: [successful, failed],
+          backgroundColor: [
+            'rgba(239, 68, 68, 0.8)',
+            'rgba(16, 185, 129, 0.8)'
+          ],
+          borderColor: [
+            '#ef4444',
+            '#10b981'
+          ],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#e6edf3',
+              padding: 20
+            }
+          }
+        }
+      }
+    });
+  </script>
+  {% else %}
+  <div class="card">
+    <p>No hay una campaña activa. <a href="/">Inicia una campaña</a> para ver las estadísticas.</p>
+  </div>
+  {% endif %}
+{% endblock %}

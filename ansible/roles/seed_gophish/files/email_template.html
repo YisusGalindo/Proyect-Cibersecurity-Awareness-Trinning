@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .header { background: #f8f9fa; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        .button { 
+            display: inline-block; 
+            padding: 12px 24px; 
+            background: #007bff; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 5px; 
+            margin: 20px 0;
+        }
+        .footer { background: #f8f9fa; padding: 15px; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>🔒 Infinity Air Springs - Actualización de Seguridad</h2>
+    </div>
+    
+    <div class="content">
+        <p>Estimado/a {{.FirstName}},</p>
+        
+        <p>Como parte de nuestras medidas de seguridad corporativa, es <strong>obligatorio</strong> que actualices tu información de acceso en nuestro portal seguro.</p>
+        
+        <p><strong>⚠️ ACCIÓN REQUERIDA:</strong> Tu cuenta será suspendida en 24 horas si no completas este proceso.</p>
+        
+        <p>Para mantener el acceso a tus sistemas corporativos, haz clic en el siguiente enlace:</p>
+        
+        <p style="text-align: center;">
+            <a href="{{.URL}}" class="button">🔐 Actualizar Credenciales Ahora</a>
+        </p>
+        
+        <p><strong>Importante:</strong> Este proceso es obligatorio para todos los empleados y debe completarse antes de las 23:59 hrs del día de hoy.</p>
+        
+        <p>Si tienes alguna duda, contacta inmediatamente al departamento de TI.</p>
+        
+        <p>Gracias por tu cooperación,</p>
+        <p><strong>Equipo de Seguridad TI</strong><br>
+        Infinity Air Springs</p>
+    </div>
+    
+    <div class="footer">
+        <p>Este es un mensaje automático del sistema de seguridad. No responder a este email.</p>
+        <p>© 2024 Infinity Air Springs - Todos los derechos reservados</p>
+    </div>
+</body>
+</html>

