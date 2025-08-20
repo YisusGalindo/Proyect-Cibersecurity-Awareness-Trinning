@@ -12,6 +12,7 @@ services:
     volumes:
       - gophish_data:/opt/gophish
     restart: unless-stopped
+    network_mode: host
 
   flask_ui:
     build: ./flask_ui
@@ -28,6 +29,7 @@ services:
     depends_on:
       - gophish
     restart: unless-stopped
+    network_mode: host
 
   reporter:
     build: ./reporter
@@ -37,6 +39,7 @@ services:
     volumes:
       - ./reports:/out
     restart: "no"
+    network_mode: host
 
 volumes:
   gophish_data:

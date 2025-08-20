@@ -136,6 +136,19 @@ def api_campaign_stats(campaign_id):
 @app.route('/start', methods=['POST'])
 @login_required
 def start_campaign():
+    # Verificar si podman-compose o docker-compose está disponible
+    compose_cmd = None
+    if shutil.which("podman-compose"):
+        compose_cmd = "podman-compose"
+    elif shutil.which("docker-compose"):
+        compose_cmd = "docker-compose"
+    elif shutil.which("docker") and subprocess.run(["docker", "compose", "version"], capture_output=True).returncode == 0:
+        compose_cmd = "docker compose"
+    
+    if not compose_cmd:
+        flash("❌ Error: Ni podman-compose ni docker-compose están disponibles")
+        return redirect(url_for('index'))
+    
     # Verificar si ansible-playbook está disponible
     ansible_path = shutil.which("ansible-playbook")
     if not ansible_path:
@@ -165,6 +178,19 @@ def start_campaign():
 @app.route('/stop', methods=['POST'])
 @login_required
 def stop_campaign():
+    # Verificar si podman-compose o docker-compose está disponible
+    compose_cmd = None
+    if shutil.which("podman-compose"):
+        compose_cmd = "podman-compose"
+    elif shutil.which("docker-compose"):
+        compose_cmd = "docker-compose"
+    elif shutil.which("docker") and subprocess.run(["docker", "compose", "version"], capture_output=True).returncode == 0:
+        compose_cmd = "docker compose"
+    
+    if not compose_cmd:
+        flash("❌ Error: Ni podman-compose ni docker-compose están disponibles")
+        return redirect(url_for('index'))
+    
     # Verificar si ansible-playbook está disponible
     ansible_path = shutil.which("ansible-playbook")
     if not ansible_path:
@@ -194,6 +220,19 @@ def stop_campaign():
 @app.route('/report', methods=['POST'])
 @login_required
 def report():
+    # Verificar si podman-compose o docker-compose está disponible
+    compose_cmd = None
+    if shutil.which("podman-compose"):
+        compose_cmd = "podman-compose"
+    elif shutil.which("docker-compose"):
+        compose_cmd = "docker-compose"
+    elif shutil.which("docker") and subprocess.run(["docker", "compose", "version"], capture_output=True).returncode == 0:
+        compose_cmd = "docker compose"
+    
+    if not compose_cmd:
+        flash("❌ Error: Ni podman-compose ni docker-compose están disponibles")
+        return redirect(url_for('index'))
+    
     # Verificar si ansible-playbook está disponible
     ansible_path = shutil.which("ansible-playbook")
     if not ansible_path:
