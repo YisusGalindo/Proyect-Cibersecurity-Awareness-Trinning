@@ -2,6 +2,7 @@ import os, subprocess, sqlite3, json, requests
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin
 from datetime import datetime
+import shutil
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY','change_me')
@@ -135,8 +136,24 @@ def api_campaign_stats(campaign_id):
 @app.route('/start', methods=['POST'])
 @login_required
 def start_campaign():
-    cmd = ["ansible-playbook","-i","ansible/inventory.ini","ansible/playbooks/start_campaign.yml"]
-    res = subprocess.run(cmd, capture_output=True, text=True)
+    # Verificar si ansible-playbook está disponible
+    ansible_path = shutil.which("ansible-playbook")
+    if not ansible_path:
+        flash("❌ Error: Ansible no está instalado. Instala con: pip install ansible")
+        return redirect(url_for('index'))
+    
+    try:
+        cmd = [ansible_path, "-i", "ansible/inventory.ini", "ansible/playbooks/start_campaign.yml"]
+        res = subprocess.run(cmd, capture_output=True, text=True, cwd="..")
+        
+        if res.returncode != 0:
+            flash(f"❌ Error ejecutando Ansible: {res.stderr}")
+            return redirect(url_for('index'))
+            
+    except Exception as e:
+        flash(f"❌ Error: {str(e)}")
+        return redirect(url_for('index'))
+    
     cid = None
     if os.path.exists('.last_campaign_id'):
         with open('.last_campaign_id') as f:
@@ -148,8 +165,24 @@ def start_campaign():
 @app.route('/stop', methods=['POST'])
 @login_required
 def stop_campaign():
-    cmd = ["ansible-playbook","-i","ansible/inventory.ini","ansible/playbooks/stop_campaign.yml"]
-    res = subprocess.run(cmd, capture_output=True, text=True)
+    # Verificar si ansible-playbook está disponible
+    ansible_path = shutil.which("ansible-playbook")
+    if not ansible_path:
+        flash("❌ Error: Ansible no está instalado. Instala con: pip install ansible")
+        return redirect(url_for('index'))
+    
+    try:
+        cmd = [ansible_path, "-i", "ansible/inventory.ini", "ansible/playbooks/stop_campaign.yml"]
+        res = subprocess.run(cmd, capture_output=True, text=True, cwd="..")
+        
+        if res.returncode != 0:
+            flash(f"❌ Error ejecutando Ansible: {res.stderr}")
+            return redirect(url_for('index'))
+            
+    except Exception as e:
+        flash(f"❌ Error: {str(e)}")
+        return redirect(url_for('index'))
+    
     cid = None
     if os.path.exists('.last_campaign_id'):
         with open('.last_campaign_id') as f:
@@ -161,8 +194,24 @@ def stop_campaign():
 @app.route('/report', methods=['POST'])
 @login_required
 def report():
-    cmd = ["ansible-playbook","-i","ansible/inventory.ini","ansible/playbooks/report.yml"]
-    res = subprocess.run(cmd, capture_output=True, text=True)
+    # Verificar si ansible-playbook está disponible
+    ansible_path = shutil.which("ansible-playbook")
+    if not ansible_path:
+        flash("❌ Error: Ansible no está instalado. Instala con: pip install ansible")
+        return redirect(url_for('index'))
+    
+    try:
+        cmd = [ansible_path, "-i", "ansible/inventory.ini", "ansible/playbooks/report.yml"]
+        res = subprocess.run(cmd, capture_output=True, text=True, cwd="..")
+        
+        if res.returncode != 0:
+            flash(f"❌ Error ejecutando Ansible: {res.stderr}")
+            return redirect(url_for('index'))
+            
+    except Exception as e:
+        flash(f"❌ Error: {str(e)}")
+        return redirect(url_for('index'))
+    
     cid = None
     if os.path.exists('.last_campaign_id'):
         with open('.last_campaign_id') as f:
