@@ -1,0 +1,34 @@
+---
+- name: Generar reporte PDF de última campaña
+  hosts: controller
+  gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/all.yml"
+  tasks:
+    - name: Leer token y campaign_id
+      ansible.builtin.shell: |
+        set -a
+        source {{ project_root }}/.env
+        echo $GOPHISH_API_KEY
+      register: api_key
+      changed_when: false
+
+    - name: Leer campaign_id
+      ansible.builtin.slurp:
+        src: "{{ project_root }}/.last_campaign_id"
+      register: cid
+
+    - name: Crear carpeta de reportes
+      ansible.builtin.file:
+        path: "{{ report_out_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Ejecutar reporter (genera PNGs + PDF)
+      ansible.builtin.command: >-
+        docker run --rm
+        --env GOPHISH_API_KEY={{ api_key.stdout | trim }}
+        --env CAMPAIGN_ID={{ (cid.content | b64decode) | trim }}
+        --env GOPHISH_URL=http://host.docker.internal:3333
+        -v {{ report_out_dir }}:/out
+        reporter:latest

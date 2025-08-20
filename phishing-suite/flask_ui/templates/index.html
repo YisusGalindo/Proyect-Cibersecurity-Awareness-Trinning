@@ -1,8 +1,0 @@
-{% extends 'base.html' %}
-{% block content %}
-  <h2>Panel</h2>
-  <p>Última campaña ID: <strong>{{ last_campaign_id or 'N/A' }}</strong></p>
-  <form action="/start" method="post"><button>Iniciar campaña</button></form>
-  <form action="/stop" method="post"><button>Detener campaña</button></form>
-  <form action="/report" method="post"><button>Generar reporte PDF</button></form>
-{% endblock %}

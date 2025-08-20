@@ -1,0 +1,84 @@
+---
+- name: Leer token GoPhish (si existe)
+  ansible.builtin.shell: |
+    set -a
+    source {{ project_root }}/.env
+    echo $GOPHISH_API_KEY
+  register: api_key
+  changed_when: false
+
+- name: Si no hay API key, obtener una del contenedor (primera vez)
+  ansible.builtin.shell: >-
+    docker logs gophish 2>&1 | awk -F'API Key:' '/API Key:/ {print $2}' | tr -d ' '
+  register: boot_api
+  when: api_key.stdout | trim == ""
+  changed_when: false
+
+- name: Guardar API key en .env
+  ansible.builtin.lineinfile:
+    path: "{{ project_root }}/.env"
+    regexp: '^GOPHISH_API_KEY='
+    line: "GOPHISH_API_KEY={{ (api_key.stdout | trim) | default(boot_api.stdout | trim, true) }}"
+
+- name: Cargar API key final
+  ansible.builtin.shell: |
+    set -a
+    source {{ project_root }}/.env
+    echo $GOPHISH_API_KEY
+  register: final_api
+  changed_when: false
+
+- name: Crear/actualizar email template
+  ansible.builtin.uri:
+    url: "http://localhost:3333/api/templates/"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ final_api.stdout | trim }}"
+      Content-Type: application/json
+    body_format: json
+    body: |
+      {
+        "name": "{{ campaign_defaults.email_template_name }}",
+        "html": {{ lookup('file', email_template_file) | to_json }}
+      }
+    status_code: [200,201]
+
+- name: Crear/actualizar landing page
+  ansible.builtin.uri:
+    url: "http://localhost:3333/api/pages/"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ final_api.stdout | trim }}"
+      Content-Type: application/json
+    body_format: json
+    body: |
+      {
+        "name": "{{ campaign_defaults.landing_page_name }}",
+        "html": {{ lookup('file', landing_page_file) | to_json }}
+      }
+    status_code: [200,201]
+
+- name: Crear/actualizar perfil SMTP
+  ansible.builtin.shell: |
+    set -a
+    source {{ smtp_env }}
+    python3 - <<'PY'
+import os, json, requests
+api=os.environ.get('GOPHISH_API_KEY','').strip()
+url='http://localhost:3333/api/smtp/'
+headers={'Authorization':f'Bearer {api}','Content-Type':'application/json'}
+payload={
+  "name": os.environ.get('SMTP_FROM_NAME','SMTP'),
+  "interface_type": "SMTP",
+  "host": f"{os.environ['SMTP_HOST']}:{os.environ.get('SMTP_PORT','587')}",
+  "username": os.environ['SMTP_USER'],
+  "password": os.environ['SMTP_PASS'],
+  "from_address": os.environ.get('SMTP_FROM_EMAIL', os.environ['SMTP_USER'])
+}
+resp=requests.post(url, headers=headers, data=json.dumps(payload))
+print(resp.status_code, resp.text)
+PY
+  args:
+    chdir: "{{ project_root }}"
+  register: smtp_resp
+  changed_when: false

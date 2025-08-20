@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  gophish:
+    image: gophish/gophish:latest
+    container_name: gophish
+    ports:
+      - "3333:3333"
+      - "80:80"
+    environment:
+      GOPHISH_ADMIN_USER: ${GOPHISH_ADMIN_USER:-admin}
+      GOPHISH_ADMIN_PASS: ${GOPHISH_ADMIN_PASS:-admin}
+    volumes:
+      - gophish_data:/opt/gophish
+    restart: unless-stopped
+
+  flask_ui:
+    build: ./flask_ui
+    container_name: phishing_ui
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./ansible:/app/ansible:ro
+      - ./reports:/app/reports
+      - ./.last_campaign_id:/app/.last_campaign_id
+      - ./build_groups.py:/app/build_groups.py:ro
+    depends_on:
+      - gophish
+    restart: unless-stopped
+
+  reporter:
+    build: ./reporter
+    container_name: reporter
+    env_file:
+      - .env
+    volumes:
+      - ./reports:/out
+    restart: "no"
+
+volumes:
+  gophish_data:

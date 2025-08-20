@@ -1,0 +1,22 @@
+---
+- name: Despliegue plataforma de phishing
+  hosts: controller
+  gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/all.yml"
+  tasks:
+    - name: Incluir rol docker_setup
+      ansible.builtin.import_role:
+        name: docker_setup
+
+    - name: Incluir rol gophish_stack (levanta docker-compose)
+      ansible.builtin.import_role:
+        name: gophish_stack
+
+    - name: Incluir rol seed_gophish (plantillas, landing, SMTP)
+      ansible.builtin.import_role:
+        name: seed_gophish
+
+    - name: Incluir rol report_tools (crear carpeta reports)
+      ansible.builtin.import_role:
+        name: report_tools

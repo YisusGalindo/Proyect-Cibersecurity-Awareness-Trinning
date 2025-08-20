@@ -1,0 +1,27 @@
+---
+- name: Detener campaña activa
+  hosts: controller
+  gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/all.yml"
+  tasks:
+    - name: Leer token GoPhish
+      ansible.builtin.shell: |
+        set -a
+        source {{ project_root }}/.env
+        echo $GOPHISH_API_KEY
+      register: api_key
+      changed_when: false
+
+    - name: Leer campaign_id
+      ansible.builtin.slurp:
+        src: "{{ project_root }}/.last_campaign_id"
+      register: cid
+
+    - name: Finalizar campaña vía API
+      ansible.builtin.uri:
+        url: "http://localhost:3333/api/campaigns/{{ (cid.content | b64decode) | trim }}/complete"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ api_key.stdout | trim }}"
+        status_code: 200
