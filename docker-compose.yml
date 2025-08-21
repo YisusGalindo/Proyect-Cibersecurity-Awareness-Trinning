@@ -5,6 +5,8 @@ services:
     ports:
       - "3333:3333"
       - "80:80"
+    networks:
+      - phishing_net
     environment:
       GOPHISH_ADMIN_USER: ${GOPHISH_ADMIN_USER:-admin}
       GOPHISH_ADMIN_PASS: ${GOPHISH_ADMIN_PASS:-admin}
@@ -24,6 +26,8 @@ services:
       - ./reports:/app/reports
       - ./.last_campaign_id:/app/.last_campaign_id
       - ./build_groups.py:/app/build_groups.py:ro
+    networks:
+      - phishing_net
     depends_on:
       - gophish
     restart: unless-stopped
@@ -35,7 +39,12 @@ services:
       - .env
     volumes:
       - ./reports:/out
+    networks:
+      - phishing_net
     restart: "no"
 
+networks:
+  phishing_net:
+    driver: bridge
+
 volumes:
-  gophish_data:
